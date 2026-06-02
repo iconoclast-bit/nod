@@ -1,0 +1,22 @@
+{
+  "name": "nod-execution-agent",
+  "version": "1.0.0",
+  "description": "Headless Puppeteer execution agent with Approval Gate support",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.5",
+    "puppeteer": "^22.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/pg": "^8.11.6",
+    "tsx": "^4.10.1",
+    "typescript": "^5.4.5"
+  }
+}

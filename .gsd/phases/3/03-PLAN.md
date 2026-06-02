@@ -12,9 +12,9 @@ Build the Execution Agent in TypeScript/Node.js to run Puppeteer headless automa
 
 ## Tasks
 
-- [ ] Initialize `execution-agent/` folder with `package.json` and `tsconfig.json`
-- [ ] Implement database integration in TypeScript using `pg` to poll for 'approved' cards
-- [ ] Implement Puppeteer browser automation logic mapped to Browserbase proxy structure
-- [ ] Implement the Approval Gate: pause execution, update status to `awaiting_user_nod`, store session, and poll database until user approves
-- [ ] Implement final confirmation action and status updates (`completed` / `failed`)
-- [ ] Verify setup using TypeScript build checks and manual execution
+- [x] Initialize `execution-agent/` folder with `package.json` and `tsconfig.json`
+- [x] Implement database integration in TypeScript using `pg` to poll for 'approved' cards
+- [x] Implement Puppeteer browser automation logic mapped to Browserbase proxy structure
+- [x] Implement the Approval Gate: pause execution, update status to `awaiting_user_nod`, store session, and poll database until user approves
+- [x] Implement final confirmation action and status updates (`completed` / `failed`)
+- [x] Verify setup using TypeScript build checks and manual execution

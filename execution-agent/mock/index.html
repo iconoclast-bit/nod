@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock Subscription Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .btn {
+            background-color: #ff4757;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .btn:hover {
+            background-color: #e84118;
+        }
+        .btn-confirm {
+            background-color: #2ed573;
+        }
+        .btn-confirm:hover {
+            background-color: #26af5f;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- View 1: Active Subscription Details -->
+        <div id="view-active">
+            <h2>Manage Subscription</h2>
+            <p>You are currently subscribed to <strong>Nod Premium</strong>.</p>
+            <p>Next billing date: June 15, 2026</p>
+            <button id="btn-cancel-initial" class="btn" onclick="showView('view-confirm')">Cancel Subscription</button>
+        </div>
+
+        <!-- View 2: Confirmation Dialog -->
+        <div id="view-confirm" class="hidden">
+            <h2>Are you absolutely sure?</h2>
+            <p>If you cancel, you will lose access to premium features at the end of your billing cycle.</p>
+            <button id="btn-cancel-final" class="btn btn-confirm" onclick="showView('view-success')">Confirm Cancellation</button>
+        </div>
+
+        <!-- View 3: Success Screen -->
+        <div id="view-success" class="hidden">
+            <h2>Subscription Cancelled</h2>
+            <p>Your subscription to Nod Premium has been successfully cancelled.</p>
+            <p>No further charges will be made.</p>
+        </div>
+    </div>
+
+    <script>
+        function showView(viewId) {
+            document.getElementById('view-active').classList.add('hidden');
+            document.getElementById('view-confirm').classList.add('hidden');
+            document.getElementById('view-success').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
