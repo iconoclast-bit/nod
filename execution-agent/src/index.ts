@@ -5,25 +5,25 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nod';
+const connectionString = process.env.DATABASE_URL || 'jdbc:postgresql://localhost:5432/postgres';
 let isProcessing = false;
 
 async function run() {
   const client = new Client({ connectionString });
-  
+
   try {
     await client.connect();
     console.log('Connected to PostgreSQL database');
-    
+
     // Poll the database for approved cards
     setInterval(async () => {
       if (isProcessing) return;
-      
+
       try {
         const res = await client.query(
           "SELECT * FROM nod_cards WHERE status = 'approved' ORDER BY created_at ASC LIMIT 1"
         );
-        
+
         if (res.rows.length > 0) {
           const card = res.rows[0];
           isProcessing = true;
@@ -35,7 +35,7 @@ async function run() {
         isProcessing = false;
       }
     }, 3000);
-    
+
   } catch (err) {
     console.error('Database connection failed:', err);
     process.exit(1);
@@ -44,11 +44,11 @@ async function run() {
 
 async function processCard(client: Client, card: any) {
   console.log(`Processing card ${card.id} for user ${card.user_id}: ${card.summary_text}`);
-  
+
   let browser;
   try {
     // Launch headless browser. Connects via Browserbase if configuration variables exist.
-    const wsUrl = process.env.BROWSERBASE_API_KEY 
+    const wsUrl = process.env.BROWSERBASE_API_KEY
       ? `wss://connect.browserbase.com?apiKey=${process.env.BROWSERBASE_API_KEY}&projectId=${process.env.BROWSERBASE_PROJECT_ID}`
       : undefined;
 
@@ -61,7 +61,7 @@ async function processCard(client: Client, card: any) {
     }
 
     const page = await browser.newPage();
-    
+
     // Navigation target (mock subscription portal)
     const mockFilePath = path.resolve('mock/index.html');
     const targetUrl = 'file://' + mockFilePath;
@@ -82,7 +82,7 @@ async function processCard(client: Client, card: any) {
     // APPROVAL GATE
     // ==========================================
     console.log('Entering Approval Gate. Pausing execution before final confirmation.');
-    
+
     // Update card status to 'awaiting_user_nod'
     await client.query(
       "UPDATE nod_cards SET status = 'awaiting_user_nod', updated_at = NOW() WHERE id = $1",
@@ -100,12 +100,12 @@ async function processCard(client: Client, card: any) {
 
     for (let i = 0; i < loops; i++) {
       await new Promise(resolve => setTimeout(resolve, checkIntervalMs));
-      
+
       const pollRes = await client.query(
         "SELECT status FROM nod_cards WHERE id = $1",
         [card.id]
       );
-      
+
       if (pollRes.rows.length === 0) {
         console.log(`Card ${card.id} deleted. Aborting.`);
         rejected = true;

@@ -27,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   
   List<NodCard> _cards = [];
   bool _isLoading = true;
-  String? _errorMsg;
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadPendingCards() async {
     setState(() {
       _isLoading = true;
-      _errorMsg = null;
     });
 
     try {
@@ -216,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF1E293B),
                   padding: const EdgeInsets.all(16),
-                  side: Border.all(color: const Color(0x33F43F5E)),
+                  side: const BorderSide(color: Color(0x33F43F5E)),
                 ),
               ),
               const SizedBox(width: 48),
@@ -227,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: IconButton.styleFrom(
                   backgroundColor: const Color(0xFF1E293B),
                   padding: const EdgeInsets.all(16),
-                  side: Border.all(color: const Color(0x3310B981)),
+                  side: const BorderSide(color: Color(0x3310B981)),
                 ),
               ),
             ],
@@ -374,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: _loadPendingCards,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E293B),
-                side: Border.all(color: const Color(0x33FFFFFF)),
+                side: const BorderSide(color: Color(0x33FFFFFF)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
