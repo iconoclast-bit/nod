@@ -1,0 +1,4 @@
+.agents/
+.DS_Store
+backend/target/
+*.class
