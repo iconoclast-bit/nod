@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: local-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_DB: nod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
