@@ -5,4 +5,7 @@ backend/target/
 node_modules/
 dist/
 target/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
 
