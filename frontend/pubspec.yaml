@@ -1,0 +1,23 @@
+name: nod
+description: A proactive digital chief of staff mobile app.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  google_sign_in: ^6.1.6
+  http: ^1.1.2
+  flutter_card_swiper: ^7.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

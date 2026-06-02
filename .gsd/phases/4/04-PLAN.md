@@ -12,9 +12,9 @@ Build the Flutter mobile frontend for Nod. Implement Google Sign-In authenticati
 
 ## Tasks
 
-- [ ] Initialize `frontend/` directory using `flutter create`
-- [ ] Configure `pubspec.yaml` dependencies (`google_sign_in`, `http`, `flutter_card_swiper`)
-- [ ] Implement backend API service in Flutter to handle login authorization and status updates
-- [ ] Implement Tinder-style card swiper screen (swiping right = approved, swiping left = rejected)
-- [ ] Implement Empty Queue / Zero Nods success screen and configure device haptics
-- [ ] Verify setup using `flutter analyze` or basic compile check
+- [x] Initialize `frontend/` directory using `flutter create`
+- [x] Configure `pubspec.yaml` dependencies (`google_sign_in`, `http`, `flutter_card_swiper`)
+- [x] Implement backend API service in Flutter to handle login authorization and status updates
+- [x] Implement Tinder-style card swiper screen (swiping right = approved, swiping left = rejected)
+- [x] Implement Empty Queue / Zero Nods success screen and configure device haptics
+- [x] Verify setup using `flutter analyze` or basic compile check
