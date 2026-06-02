@@ -12,8 +12,8 @@ Build the Extraction Pipeline service that ephemerally retrieves emails from the
 
 ## Tasks
 
-- [ ] Add Google Client libraries and Gmail API dependencies to pom.xml
-- [ ] Implement NodCardRepository database save method using Spring's Simple JdbcClient
-- [ ] Implement GmailService to pull the last 50 emails in-memory (ephemeral)
-- [ ] Implement GeminiClient to format prompts and execute structured JSON queries using HttpClient
-- [ ] Implement ExtractionScheduler to define the scheduled hourly extraction job and expose trigger endpoints in NodCardController
+- [x] Add Google Client libraries and Gmail API dependencies to pom.xml
+- [x] Implement NodCardRepository database save method using Spring's Simple JdbcClient
+- [x] Implement GmailService to pull the last 50 emails in-memory (ephemeral)
+- [x] Implement GeminiClient to format prompts and execute structured JSON queries using HttpClient
+- [x] Implement ExtractionScheduler to define the scheduled hourly extraction job and expose trigger endpoints in NodCardController
