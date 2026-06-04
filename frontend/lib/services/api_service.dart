@@ -33,6 +33,28 @@ class ApiService {
 
     return response.statusCode == 200;
   }
+
+  /// Trigger the extraction pipeline for this user using their real Gmail access token
+  Future<int> triggerExtraction(String userId, String accessToken) async {
+    if (accessToken.trim().isEmpty) {
+      throw Exception("Access Token is null before sending");
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/users/$userId/extract'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['extractedCount'] ?? 0;
+    } else {
+      throw Exception('Extraction failed: ${response.body}');
+    }
+  }
 }
 
 class NodCard {
@@ -54,18 +76,19 @@ class NodCard {
 
   factory NodCard.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> payload = {};
-    if (json['action_payload'] != null) {
-      if (json['action_payload'] is String) {
-        payload = jsonDecode(json['action_payload']);
+    final dynamic actionData = json['action_payload'] ?? json['actionPayload'];
+    if (actionData != null) {
+      if (actionData is String) {
+        payload = jsonDecode(actionData);
       } else {
-        payload = Map<String, dynamic>.from(json['action_payload']);
+        payload = Map<String, dynamic>.from(actionData);
       }
     }
     return NodCard(
       id: json['id'] ?? '',
-      userId: json['user_id'] ?? '',
-      choreType: json['chore_type'] ?? '',
-      summaryText: json['summary_text'] ?? '',
+      userId: json['user_id'] ?? json['userId'] ?? '',
+      choreType: json['chore_type'] ?? json['choreType'] ?? '',
+      summaryText: json['summary_text'] ?? json['summaryText'] ?? '',
       status: json['status'] ?? 'pending',
       actionPayload: payload,
     );

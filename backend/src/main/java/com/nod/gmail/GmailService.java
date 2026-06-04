@@ -11,11 +11,34 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class GmailService {
 
+    private static final Logger log = LoggerFactory.getLogger(GmailService.class);
+
     public record EphemeralEmail(String id, String subject, String body, String sender, String receivedDate) {}
+
+    /**
+     * Fetches the user's profile email address using their accessToken.
+     */
+    public String fetchUserProfile(String accessToken) throws GeneralSecurityException, IOException {
+        Gmail service = new Gmail.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                GsonFactory.getDefaultInstance(),
+                request -> {
+                    String authHeader = "Bearer " + accessToken;
+                    request.getHeaders().setAuthorization(authHeader);
+                }
+        )
+                .setApplicationName("Nod")
+                .build();
+        
+        com.google.api.services.gmail.model.Profile profile = service.users().getProfile("me").execute();
+        return profile.getEmailAddress();
+    }
 
     /**
      * Fetches recent messages using a user's accessToken.
@@ -25,14 +48,19 @@ public class GmailService {
         Gmail service = new Gmail.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 GsonFactory.getDefaultInstance(),
-                request -> request.getHeaders().setAuthorization("Bearer " + accessToken)
+                request -> {
+                    String authHeader = "Bearer " + accessToken;
+                    log.info("Setting Gmail API Authorization header: '{}'", authHeader);
+                    request.getHeaders().setAuthorization(authHeader);
+                }
         )
                 .setApplicationName("Nod")
                 .build();
 
-        // Retrieve messages metadata list
+        // Retrieve messages metadata list - filter to last 30 days to get recent bills/reminders
         ListMessagesResponse listResponse = service.users().messages().list("me")
                 .setMaxResults((long) maxResults)
+                .setQ("newer_than:30d")
                 .execute();
 
         List<Message> messages = listResponse.getMessages();

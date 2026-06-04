@@ -109,6 +109,33 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
+  Future<void> _triggerExtraction() async {
+    setState(() => _isLoading = true);
+    try {
+      final count = await _apiService.triggerExtraction(widget.userId, widget.accessToken);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Extraction complete. Found $count new chores.'),
+            backgroundColor: const Color(0xFF10B981),
+          ),
+        );
+      }
+      await _loadPendingCards();
+    } catch (e) {
+      print('Extraction Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to extract chores: $e'),
+            backgroundColor: const Color(0xFFF43F5E),
+          ),
+        );
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
             : _cards.isEmpty
                 ? _buildEmptyState()
                 : _buildCardSwiper(),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _triggerExtraction,
+        backgroundColor: const Color(0xFF6366F1),
+        icon: const Icon(Icons.mail_outline, color: Colors.white),
+        label: const Text('Scan Inbox', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }

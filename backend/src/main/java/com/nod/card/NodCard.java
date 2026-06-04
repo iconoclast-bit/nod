@@ -2,13 +2,15 @@ package com.nod.card;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record NodCard(
     String id,
-    String userId,
-    String choreType,
-    String summaryText,
+    @JsonProperty("user_id") String userId,
+    @JsonProperty("chore_type") String choreType,
+    @JsonProperty("summary_text") String summaryText,
     NodCardStatus status,
-    String actionPayload, // Store JSONB content as a raw JSON string
-    Instant createdAt,
-    Instant updatedAt
+    @JsonProperty("action_payload") String actionPayload,
+    @JsonProperty("created_at") Instant createdAt,
+    @JsonProperty("updated_at") Instant updatedAt
 ) {}

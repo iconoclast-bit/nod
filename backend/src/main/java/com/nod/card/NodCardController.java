@@ -14,19 +14,20 @@ public class NodCardController {
     private final NodCardRepository nodCardRepository;
     private final com.nod.extraction.ExtractionScheduler extractionScheduler;
 
-    public NodCardController(NodCardRepository nodCardRepository, com.nod.extraction.ExtractionScheduler extractionScheduler) {
+    public NodCardController(NodCardRepository nodCardRepository,
+            com.nod.extraction.ExtractionScheduler extractionScheduler) {
         this.nodCardRepository = nodCardRepository;
         this.extractionScheduler = extractionScheduler;
     }
 
-    public record StatusUpdateRequest(String status) {}
+    public record StatusUpdateRequest(String status) {
+    }
 
     @PatchMapping("/users/{userId}/nod-cards/{cardId}")
     public ResponseEntity<?> updateCardStatus(
             @PathVariable String userId,
             @PathVariable String cardId,
-            @RequestBody StatusUpdateRequest request
-    ) {
+            @RequestBody StatusUpdateRequest request) {
         if (request.status() == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Status field is required"));
         }
@@ -55,17 +56,35 @@ public class NodCardController {
         return ResponseEntity.ok(Map.of(
                 "message", "NodCard status updated successfully",
                 "cardId", cardId,
-                "status", newStatus.name()
-        ));
+                "status", newStatus.name()));
+    }
+
+    @GetMapping("/users/{userId}/nod-cards")
+    public ResponseEntity<?> getPendingCards(
+            @PathVariable String userId,
+            @RequestParam(required = false, defaultValue = "pending") String status) {
+        NodCardStatus cardStatus;
+        try {
+            cardStatus = NodCardStatus.valueOf(status.toLowerCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid status value"));
+        }
+
+        java.util.List<NodCard> cards = nodCardRepository.findByUserIdAndStatus(userId, cardStatus);
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                .header("Pragma", "no-cache")
+                .body(cards);
     }
 
     @GetMapping("/auth/google")
     public Object getGoogleAuthUrl(@RequestParam(required = false, defaultValue = "false") boolean redirect) {
         // Boilerplate Google OAuth Url generation
         String clientId = System.getenv().getOrDefault("GOOGLE_CLIENT_ID", "MOCK_CLIENT_ID");
-        String redirectUri = System.getenv().getOrDefault("GOOGLE_REDIRECT_URI", "http://localhost:8080/api/auth/google/callback");
+        String redirectUri = System.getenv().getOrDefault("GOOGLE_REDIRECT_URI",
+                "http://localhost:8080/api/auth/google/callback");
         String scopes = "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly";
-        
+
         String authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
                 "?client_id=" + clientId +
                 "&redirect_uri=" + redirectUri +
@@ -96,30 +115,31 @@ public class NodCardController {
                         "access_token", "mock_access_token_abc123",
                         "refresh_token", "mock_refresh_token_xyz789",
                         "expires_in", 3600,
-                        "token_type", "Bearer"
-                )
-        ));
+                        "token_type", "Bearer")));
     }
-
-    public record ExtractRequest(String accessToken) {}
 
     @PostMapping("/users/{userId}/extract")
     public ResponseEntity<?> triggerExtraction(
             @PathVariable String userId,
-            @RequestBody ExtractRequest request
-    ) {
-        String token = request.accessToken();
-        if (token == null || token.isBlank()) {
-            token = "mock_access_token";
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        
+        System.out.println(">>> RECEIVED EXTRACTION REQUEST FOR USER: " + userId);
+        System.out.println(">>> RECEIVED AUTH HEADER: " + authHeader);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println(">>> REJECTING REQUEST: Missing or invalid Authorization header");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Missing or invalid Authorization header"));
         }
+
+        String token = authHeader.substring(7);
 
         try {
             int extractedCount = extractionScheduler.runPipelineForUser(userId, token);
             return ResponseEntity.ok(Map.of(
                     "message", "Extraction completed successfully",
                     "userId", userId,
-                    "extractedCount", extractedCount
-            ));
+                    "extractedCount", extractedCount));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Extraction pipeline failed", "details", e.getMessage()));

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || 'jdbc:postgresql://localhost:5432/postgres';
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:your_secure_password@localhost:5432/nod';
 let isProcessing = false;
 
 async function run() {

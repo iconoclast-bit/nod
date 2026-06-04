@@ -48,7 +48,7 @@ public class NodCardRepository {
                     WHERE id = :id AND user_id = :userId
                 """)
                 .param("status", status.name())
-                .param("updatedAt", Instant.now())
+                .param("updatedAt", java.sql.Timestamp.from(Instant.now()))
                 .param("id", id)
                 .param("userId", userId)
                 .update();
@@ -68,8 +68,32 @@ public class NodCardRepository {
                 .param("summaryText", card.summaryText())
                 .param("status", card.status().name())
                 .param("actionPayload", card.actionPayload())
-                .param("createdAt", card.createdAt() != null ? card.createdAt() : Instant.now())
-                .param("updatedAt", card.updatedAt() != null ? card.updatedAt() : Instant.now())
+                .param("createdAt", java.sql.Timestamp.from(card.createdAt() != null ? card.createdAt() : Instant.now()))
+                .param("updatedAt", java.sql.Timestamp.from(card.updatedAt() != null ? card.updatedAt() : Instant.now()))
                 .update();
+    }
+    /**
+     * Finds all NodCards for a user with a specific status.
+     */
+    public java.util.List<NodCard> findByUserIdAndStatus(String userId, NodCardStatus status) {
+        return jdbcClient.sql("""
+                    SELECT id, user_id, chore_type, summary_text, status, action_payload, created_at, updated_at
+                    FROM nod_cards
+                    WHERE user_id = :userId AND status = :status
+                    ORDER BY created_at ASC
+                """)
+                .param("userId", userId)
+                .param("status", status.name())
+                .query((rs, rowNum) -> new NodCard(
+                        rs.getString("id"),
+                        rs.getString("user_id"),
+                        rs.getString("chore_type"),
+                        rs.getString("summary_text"),
+                        NodCardStatus.valueOf(rs.getString("status")),
+                        rs.getString("action_payload"),
+                        rs.getTimestamp("created_at").toInstant(),
+                        rs.getTimestamp("updated_at").toInstant()
+                ))
+                .list();
     }
 }

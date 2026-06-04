@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_web/web_only.dart' as web;
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: '81792018615-u7ca79t0qukt8qeg3gjfmj0ks1eao389.apps.googleusercontent.com',
     scopes: [
       'https://www.googleapis.com/auth/gmail.readonly',
       'https://www.googleapis.com/auth/calendar.readonly',
@@ -24,6 +26,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    
+    // Listen for authentication events from the web GSI popup
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+      if (account != null) {
+        _handleSignInSuccess(account);
+      }
+    });
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -40,32 +50,41 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  Future<void> _handleGoogleSignIn() async {
+  Future<void> _handleSignInSuccess(GoogleSignInAccount account) async {
     setState(() => _isLoading = true);
     try {
-      final account = await _googleSignIn.signIn();
-      if (account != null) {
-        final auth = await account.authentication;
-        final accessToken = auth.accessToken ?? 'mock_access_token_dev';
-        
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(
-                userId: account.id,
-                userEmail: account.email,
-                accessToken: accessToken,
-                displayName: account.displayName ?? 'User',
-              ),
-            ),
-          );
+      // In the new GSI web flow, identity and OAuth are separated.
+      // We must explicitly request the Gmail scopes to get an access token.
+      final bool isAuthorized = await _googleSignIn.canAccessScopes(_googleSignIn.scopes);
+      if (!isAuthorized) {
+        final granted = await _googleSignIn.requestScopes(_googleSignIn.scopes);
+        if (!granted) {
+          throw Exception("Permissions denied. Cannot fetch chores.");
         }
       }
+
+      final auth = await account.authentication;
+      final accessToken = auth.accessToken ?? 'mock_access_token_dev';
+      
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(
+              userId: account.id,
+              userEmail: account.email,
+              accessToken: accessToken,
+              displayName: account.displayName ?? 'User',
+            ),
+          ),
+        );
+      }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sign-in failed: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign-in failed: $error')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -76,13 +95,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       context,
       MaterialPageRoute(
         builder: (context) => const HomeScreen(
-          userId: 'mock_user_123',
-          userEmail: 'sandbox@nod.ai',
+          userId: 'test_user_1',
+          userEmail: 'sriayush1999@gmail.com',
           accessToken: 'mock_access_token_abc',
-          displayName: 'Sandbox User',
+          displayName: 'Ayush (Sandbox)',
         ),
       ),
     );
+
   }
 
   @override
@@ -180,26 +200,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       if (_isLoading)
                         const CircularProgressIndicator(color: Color(0xFF818CF8))
                       else ...[
-                        // Google Sign-In Button
-                        ElevatedButton.icon(
-                          onPressed: _handleGoogleSignIn,
-                          icon: const Icon(Icons.login_rounded, color: Colors.white),
-                          label: const Text(
-                            'Sign In with Google',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6366F1),
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 0,
-                          ),
+                        // Native Google Sign-In Button (replaces deprecated signIn)
+                        SizedBox(
+                          width: 250,
+                          height: 50,
+                          child: web.renderButton(),
                         ),
                         const SizedBox(height: 16),
                         

@@ -8,7 +8,7 @@ const puppeteer_1 = __importDefault(require("puppeteer"));
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/nod';
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:your_secure_password@localhost:5432/nod';
 let isProcessing = false;
 async function run() {
     const client = new pg_1.Client({ connectionString });
