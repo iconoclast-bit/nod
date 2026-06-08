@@ -1,5 +1,5 @@
 ---
-updated: 2026-06-02T17:47:00Z
+updated: 2026-06-08T22:19:00Z
 ---
 
 # Project State
@@ -13,7 +13,10 @@ updated: 2026-06-02T17:47:00Z
 
 ## Last Action
 
-Verified Phase 4 frontend implementation.
+- Verified Phase 4 frontend implementation.
+- Fixed Google Sign-In `gapi.client` initialization warning in `frontend/web/index.html`.
+- Configured local environment to run Flutter web on a fixed port (`4040`) to permanently resolve Google OAuth `origin_mismatch` errors.
+- Verified successful local startup sequence for the full stack (PostgreSQL via Docker, Spring Boot backend, Flutter web frontend).
 
 ## Next Steps
 
